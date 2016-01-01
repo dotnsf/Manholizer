@@ -1,6 +1,26 @@
+<?php
+$apikey = '(Your AlchemyAPI Key)'; # http://www.alchemyapi.com/api/register.html
+$servername = $_SERVER['SERVER_NAME'];
+?>
 <html>
 <head>
 <title>Manholizer</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+<link rel="shortcut icon" href="./icon.png" type="image/png"/>
+<link rel="icon" href="./icon.png" type="image/png"/>
+<link rel="apple-touch-icon" href="./icon.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+<meta property="og:title" content="Manholizer（マンホライザー）"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="http://<?php echo $servername; ?>/"/>
+<meta property="og:image" content="http://<?php echo $servername; ?>/tokyo001.png"/>
+<meta property="og:site_name" content="Manholizer（マンホライザー）"/>
+<meta property="og:description" content="Manholizer（マンホライザー） - 技術のムダ使いで誰でもマンホールに早変わり！画像を人工知能で顔認識し、顔の位置に合わせてマンホライズします（性別や年齢判定も行います）。"/>
+<meta name="description" content="Manholizer（マンホライザー） - 技術のムダ使いで誰でもマンホールに早変わり！画像を人工知能で顔認識し、顔の位置に合わせてマンホライズします（性別や年齢判定も行います）。"/>
+<meta name="keywords" content="Manhole,マンホール,画像認識,顔認識,人工知能,AlchemyAPI"/>
+
 <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 <script type="text/javascript">
 var manhole_image1 = new Image();
@@ -24,7 +44,6 @@ function drawFace(){
     var h = o[4];
     var g = o[5];
     var a = o[6];
-    //document.title = a;
 
     //. 画像の縮尺（縦横の短い方に合わせる）
     var z = 1.0;
@@ -99,8 +118,6 @@ function drawFace(){
 <body>
 <?php
 if( isset( $_POST['url'] ) ){
-  $apikey = '(Your AlchemyAPI Key)';
-
   $url = $_POST['url'];
 ?>
 <script type="text/javascript">
@@ -164,6 +181,16 @@ URL: <input type="text" name="url" size="80"/>
 }
 ?>
 </body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-71901920-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
 </html>
 
 
