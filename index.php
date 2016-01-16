@@ -129,6 +129,42 @@ $(function(){
     };
     reader.readAsDataURL( file );
   }, false );
+
+  // ファイルを選択した場合にもプレビュー表示させる
+  var selfInput = $(this).find( 'input[type=file]' );
+  selfInput.change( function(){
+    var file = $(this).prop('files')[0];
+    if( !file.type.match( /image\/\w+/ ) ){
+      alert( '画像ファイル以外は利用できません' );
+      return;
+    }
+
+    var reader = new FileReader();
+    if( this.files.length ){
+      if( file.type.match('image.*') ){
+        reader.onload = function(){
+          var img = new Image();
+          img.src = reader.result;
+          img.addEventListener( 'load', function(){
+            $("#base").attr( 'src', img.src );
+            $("#base").attr( 'width', img.width );
+            $("#base").attr( 'height', img.height );
+            $(".relative").attr( 'width', img.width );
+
+            imageFileUpload( file );
+          }, false );
+        };
+        reader.onerror = function( e ){
+          console.log( 'error: ' + e );
+        };
+        reader.readAsDataURL( file );
+      }else{
+        if( 0 < selfImg.size() ){
+          return;
+        }
+      }
+    }
+  });
 });
 
 // ファイルアップロード
@@ -190,6 +226,10 @@ function imageFileUpload( f ){
 </head>
 <body>
 <h1>Manholizer</h1>
+<div class="imgSelect">
+<input type="file" name="file1"/>
+</div>
+<br/>
 <form action="./index.php" method="post">
 URL: <input type="text" name="url" size="80"/>
 <input type="submit" value="Submit"/>
