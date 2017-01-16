@@ -20,10 +20,11 @@ $servername = $_SERVER['SERVER_NAME'];
 <meta property="og:site_name" content="Manholizer（マンホライザー）"/>
 <meta property="og:description" content="Manholizer（マンホライザー） - 技術のムダ使いで誰でもマンホールに早変わり！画像を人工知能で顔認識し、顔の位置に合わせてマンホライズします（性別や年齢判定も行います）。"/>
 <meta name="description" content="Manholizer（マンホライザー） - 技術のムダ使いで誰でもマンホールに早変わり！画像を人工知能で顔認識し、顔の位置に合わせてマンホライズします（性別や年齢判定も行います）。"/>
-<meta name="keywords" content="Manhole,マンホール,画像認識,顔認識,人工知能,AlchemyAPI"/>
+<meta name="keywords" content="Manhole,マンホール,画像認識,顔認識,人工知能,IBM,Watson,Visual Recognition"/>
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 <script type="text/javascript">
+var ratio = 0;
 var manhole_image1 = new Image();
 manhole_image1.src = './tokyo001.png';
 var manhole_image2 = new Image();
@@ -55,7 +56,7 @@ function drawFace(){
     }
 
     //. 画像の位置
-    var i_x = x - ( 112.0 * z );
+    var i_x = x - ( 85.0 * z ); //( 112.0 * z );
     var i_y = y - ( 101.0 * z );
     var i_w = 349.0 * z;
     var i_h = 349.0 * z;
@@ -95,6 +96,8 @@ function drawFace(){
       'width': a_w
     });
   }
+
+  $(".imgSelect").css({'display':'none'});
 }
 
 $(function(){
@@ -117,9 +120,22 @@ $(function(){
       img.src = reader.result;
       img.addEventListener( 'load', function(){
         $("#base").attr( 'src', img.src );
-        $("#base").attr( 'width', img.width );
-        $("#base").attr( 'height', img.height );
-        $(".relative").attr( 'width', img.width );
+
+        var w = img.width;
+        var h = img.height;
+/*
+        if( w > h ){
+          h = Math.round( 800 * h / w );
+          w = 800;
+        }else{
+          w = Math.round( 800 * w / h );
+          h = 800;
+        }
+*/
+
+        $("#base").attr( 'width', w );
+        $("#base").attr( 'height', h );
+        $(".relative").attr( 'width', w );
 
         imageFileUpload( file );
       }, false );
@@ -147,9 +163,22 @@ $(function(){
           img.src = reader.result;
           img.addEventListener( 'load', function(){
             $("#base").attr( 'src', img.src );
-            $("#base").attr( 'width', img.width );
-            $("#base").attr( 'height', img.height );
-            $(".relative").attr( 'width', img.width );
+
+            var w = img.width;
+            var h = img.height;
+            if( w > h ){
+              ratio = 800 / w;
+              h = Math.round( 800 * h / w );
+              w = 800;
+            }else{
+              ratio = 800 / h;
+              w = Math.round( 800 * w / h );
+              h = 800;
+            }
+
+            $("#base").attr( 'width', w );
+            $("#base").attr( 'height', h );
+            $(".relative").attr( 'width', w );
 
             imageFileUpload( file );
           }, false );
@@ -179,19 +208,25 @@ function imageFileUpload( f ){
     data: formData,
     dataType: 'json',
     success: function( data ){
+      //.console.log( data );
       // メッセージ出したり、DOM構築したり。
-      if( data.result.imageFaces ){
+      if( data.result.images ){
         arr = new Array();
-        for( i = 0; i < data.result.imageFaces.length; i ++ ){
-          var imageFace = data.result.imageFaces[i];
-          var positionX = imageFace.positionX;
-          var positionY = imageFace.positionY;
-          var width = imageFace.width;
-          var height = imageFace.height;
-          var age = imageFace.age.ageRange;
-          var gender_s = imageFace.gender.gender;
-          var gender = ( gender_s == 'MALE' ? 1 : 2 );
-          addFace( i, positionX, positionY, width, height, gender, age );
+        for( i = 0; i < data.result.images.length; i ++ ){
+          var image = data.result.images[i];
+          for( j = 0; j < image.faces.length; j ++ ){
+            var imageFace = image.faces[j];
+            var positionX = imageFace.face_location.left;
+            var positionY = imageFace.face_location.top;
+            var width = imageFace.face_location.width;
+            var height = imageFace.face_location.height;
+            var age_max = imageFace.age.max;
+            var age_min = imageFace.age.min;
+            var age = ( age_min ? age_min : '' ) + '-' + ( age_max ? age_max : '' );
+            var gender_s = imageFace.gender.gender;
+            var gender = ( gender_s == 'MALE' ? 1 : 2 );
+            addFace( i, positionX, positionY, width, height, gender, age );
+          }
         }
         drawFace();
       }
@@ -229,77 +264,11 @@ function imageFileUpload( f ){
 <div class="imgSelect">
 <input type="file" name="file1"/>
 </div>
-<br/>
-<form action="./index.php" method="post">
-URL: <input type="text" name="url" size="80"/>
-<input type="submit" value="Submit"/>
-</form>
 <hr/>
 <div id="cvs" class="relative">
   <img id="base"/>
 </div>
-<?php
-if( isset( $_POST['url'] ) ){
-  $url = $_POST['url'];
-?>
-<script type="text/javascript">
-$(function(){
-  var img = new Image();
-  img.src = '<?php echo $url; ?>';
-  img.addEventListener( 'load', function(){
-    $("#base").attr( 'src', img.src );
-    $("#base").attr( 'width', img.width );
-    $("#base").attr( 'height', img.height );
-    $(".relative").attr( 'width', img.width );
-
-    setTimeout( 'drawFace()', 1000 );
-  }, false );
-});
-</script>
-<?php
-  $apiurl = 'http://access.alchemyapi.com/calls/url/URLGetRankedImageFaceTags?apikey=' . $apikey . '&outputMode=json&knowledgeGraph=1&url=' . urlencode( $url );
-  $text = file_get_contents( $apiurl );
-?>
-<!-- $text
-<?php echo $text; ?>
--->
-<?php
-  $json = json_decode( $text );
-  $imageFaces = $json->imageFaces;
-  if( count( $imageFaces ) ){
-?>
-<script type="text/javascript">
-<?php
-    for( $i = 0; $i < count( $imageFaces ); $i ++ ){
-      $imageFace = $imageFaces[$i];
-      $positionX = $imageFace->positionX;
-      $positionY = $imageFace->positionY;
-      $width = $imageFace->width;
-      $height = $imageFace->height;
-      $age = $imageFace->age->ageRange;
-      $gender_s = $imageFace->gender->gender;
-      $gender = ( $gender_s == 'MALE' ? 1 : 2 );
-?>
-addFace( <?php echo $i; ?>, <?php echo $positionX; ?>, <?php echo $positionY; ?>, <?php echo $width; ?>, <?php echo $height; ?>, <?php echo $gender; ?>, '<?php echo $age; ?>' );
-<?php
-    }
-?>
-</script>
-<?php
-  }
-}
-?>
 </body>
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-71901920-1', 'auto');
-  ga('send', 'pageview');
-
-</script>
 </html>
 
 
