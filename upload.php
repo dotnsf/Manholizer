@@ -12,7 +12,6 @@ if( $tmpname ){
     $imgdata = fread( $fp, $filesize );
     fclose( $fp );
 
-    #$apiurl = 'http://access.alchemyapi.com/calls/image/ImageGetRankedImageFaceTags?apikey=' . $apikey . '&outputMode=json&knowledgeGraph=1&imagePostMode=raw';
     $apiurl = 'https://gateway-a.watsonplatform.net/visual-recognition/api/v3/detect_faces?apikey=' . $apikey . '&version=2016-05-20';
     $boundary = '-------------------'.time();
     $contentType = 'Content-Type: multipart/form-data; boundary=' . $boundary;
