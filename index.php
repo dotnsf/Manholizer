@@ -1,6 +1,4 @@
 <?php
-require( './credentials.php' );
-
 $servername = $_SERVER['SERVER_NAME'];
 ?>
 <html>
@@ -56,16 +54,16 @@ function drawFace(){
     }
 
     //. 画像の位置
-    var i_x = x - ( 85.0 * z ); //( 112.0 * z );
-    var i_y = y - ( 101.0 * z );
-    var i_w = 349.0 * z;
-    var i_h = 349.0 * z;
+    var i_x = x * ratio - ( 112.0 * ratio );
+    var i_y = y * ratio - ( 101.0 * ratio );
+    var i_w = 349.0 * ratio;
+    var i_h = 349.0 * ratio;
 
     //. ageRangeの位置
-    var a_x = i_x + ( 158.0 * z );
-    var a_y = i_y + ( 21.0 * z );
-    var a_w = 34.0 * z;
-    var a_h = 16.0 * z;
+    var a_x = i_x + ( 158.0 * ratio );
+    var a_y = i_y + ( 21.0 * ratio );
+    var a_w = 34.0 * ratio;
+    var a_h = 16.0 * ratio;
 
     //. img タグ追加
     $("#cvs").append( "<img id='face_" + id + "' class='absolute'/>" );
@@ -123,15 +121,15 @@ $(function(){
 
         var w = img.width;
         var h = img.height;
-/*
-        if( w > h ){
+//        if( w > h ){
+          ratio = 800 / w;
           h = Math.round( 800 * h / w );
           w = 800;
-        }else{
-          w = Math.round( 800 * w / h );
-          h = 800;
-        }
-*/
+//        }else{
+//          ratio = 800 / h;
+//          w = Math.round( 800 * w / h );
+//          h = 800;
+//        }
 
         $("#base").attr( 'width', w );
         $("#base").attr( 'height', h );
@@ -166,15 +164,15 @@ $(function(){
 
             var w = img.width;
             var h = img.height;
-            if( w > h ){
+//            if( w > h ){
               ratio = 800 / w;
               h = Math.round( 800 * h / w );
               w = 800;
-            }else{
-              ratio = 800 / h;
-              w = Math.round( 800 * w / h );
-              h = 800;
-            }
+//            }else{
+//              ratio = 800 / h;
+//              w = Math.round( 800 * w / h );
+//              h = 800;
+//            }
 
             $("#base").attr( 'width', w );
             $("#base").attr( 'height', h );
@@ -208,7 +206,7 @@ function imageFileUpload( f ){
     data: formData,
     dataType: 'json',
     success: function( data ){
-      //.console.log( data );
+      //console.log( data );
       // メッセージ出したり、DOM構築したり。
       if( data.result.images ){
         arr = new Array();
@@ -225,10 +223,12 @@ function imageFileUpload( f ){
             var age = ( age_min ? age_min : '' ) + '-' + ( age_max ? age_max : '' );
             var gender_s = imageFace.gender.gender;
             var gender = ( gender_s == 'MALE' ? 1 : 2 );
-            addFace( i, positionX, positionY, width, height, gender, age );
+            addFace( j, positionX, positionY, width, height, gender, age );
           }
         }
         drawFace();
+      }else if( data.result.status == "ERROR" ){
+        console.log( data.result.statusInfo );
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -257,6 +257,13 @@ function imageFileUpload( f ){
   font-size: xx-small;
   background-color: #ffcccc;
 }
+
+html, body, {
+  height: 100%;
+  margin: 0px;
+  padding: 0px
+}
+
 </style>
 </head>
 <body>
